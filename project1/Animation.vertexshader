@@ -1,0 +1,67 @@
+#version 330 core
+
+layout(location = 0) in vec3 vertexPosition_modelspace;
+layout(location = 1) in vec3 vertexNormal_modelspace;
+layout(location = 2) in vec2 vertexUV;
+
+uniform mat4 P;
+uniform mat4 V;
+uniform mat4 M;
+uniform mat4 lightVP;
+
+
+out vec3 vertex_position_worldspace;
+out vec3 vertex_position_cameraspace;
+out vec3 vertex_normal_cameraspace;
+out vec2 vertex_UV;
+out vec4 vertex_position_lightspace;
+
+//Homework
+uniform mat4 waist_left, waist_right, knee_left, knee_right, foot_left, foor_right;
+uniform mat4 neck, shoulder_left, shoulder_right, head, elbow_left, elbow_right, hand_left, hand_right;
+
+uniform mat4 shoulder_right_dr,elbow_right_dr;
+
+uniform mat4 light2VP;
+out vec4 vertex_position_lightspace2;
+uniform float draw_orb = 0.0f;
+
+
+void main() {
+    vec3 right_shoulder= vec3(-0.27f, 0.6f, 0.0f);
+    //checking in which bone does the vertex belong to
+    if (vertexPosition_modelspace.x < -0.30){//belongs to right hand
+        if(vertexPosition_modelspace.y > 0.25){//betweeen right elbow and right shoulder_left
+//            gl_Position =  P * V * M * shoulder_right_dr * vec4(vertexPosition_modelspace, 1);
+//            vertex_position_worldspace = (M * shoulder_right_dr * vec4(vertexPosition_modelspace, 1)).xyz;
+            gl_Position =  P * V * M * vec4(vertexPosition_modelspace, 1);
+        }
+        else if (vertexPosition_modelspace.y > -0.40){//right elbow and below
+        //else{
+            vec3 diff = vertexPosition_modelspace - right_shoulder;
+            vertex_position_worldspace = (M * shoulder_right_dr * elbow_right_dr * vec4(diff, 1)).xyz;
+            gl_Position =  P * V * M * shoulder_right_dr * elbow_right_dr * vec4(diff, 1);
+        }
+        else{
+            gl_Position =  P * V * M * vec4(vertexPosition_modelspace, 1);
+        }
+        
+    }
+
+    else{
+        // Output position of the vertex
+        gl_Position =  P * V * M * vec4(vertexPosition_modelspace, 1);
+        
+        // FS
+        vertex_position_worldspace = (M * vec4(vertexPosition_modelspace, 1)).xyz;
+        vertex_position_cameraspace = (V * M * vec4(vertexPosition_modelspace, 1)).xyz;
+        vertex_normal_cameraspace = (V * M * vec4(vertexNormal_modelspace, 0)).xyz; 
+        
+        vertex_UV = vertexUV;
+
+        // Task 4.2
+        //vertex_position_lightspace = lightVP * M * vec4(vertexPosition_modelspace, 1.0f);
+    }
+
+
+}

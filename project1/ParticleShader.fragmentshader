@@ -1,0 +1,60 @@
+#version 330 core
+
+out vec4 fragmentColor;
+
+in vec2 UV;
+
+uniform sampler2D particle_texture;
+
+uniform int explosion = 0;
+uniform int trail = 0;
+
+
+in float life_left;
+in float d;
+
+void main() {
+    //fragmentColor = vec4(texture(texture0, UV).rgb, 0.5f);
+    vec4 texColor = texture(particle_texture, UV);
+    //fragmentColor = vec4(texColor.rgb, 1.0f);
+    //fragmentColor = vec4(1, 0, 0, 1);
+    if(trail!=0){
+        fragmentColor = vec4(0.8,0,1, life_left);
+    }
+    else if(explosion!=0){
+        
+        if (d<0.5){
+            fragmentColor = vec4(1/(1+d/2),1/(1+d/2),1/(1+100*pow(d,2.0f)),2*life_left);
+        }
+        else if (d>0.5 && d<1.8){
+            //fragmentColor = vec4(1/(1+d/3),1/(1+2*d),0,2*life_left);
+            fragmentColor = vec4(1/(1+d/2),1/(1+2*d*d),0,1.5*life_left);
+        }
+//        else if (d<0.6){
+//            fragmentColor = vec4(1/(1+d/2),1/(1+d/2),1/(1+100*pow(d,2.0f)),2*life_left);
+//        }
+//        else if (d<0.9){
+//           fragmentColor = vec4(1/(1+d/10),1/(1+5*d),1/(1+100*pow(d,2.0f)),2*life_left);
+//           
+//        }
+        else{
+            //fragmentColor = vec4(1/(1+10*d),1/(1+10*d),0,life_left);
+            vec4 texColor = texture(particle_texture, UV);
+            if (texColor.g < 0.4){
+                fragmentColor = vec4(texColor.rgb, 2*life_left);
+            }
+            else{
+                discard;
+            }
+        }
+    }
+    else{
+        if (texColor.g < 0.4){
+        //if (texColor.r>0.1){
+            fragmentColor = vec4(texColor.rgb, 1.0f);
+            }
+        else{
+         discard;
+        }
+    }
+}

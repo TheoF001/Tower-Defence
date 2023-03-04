@@ -1,0 +1,39 @@
+#version 330 core
+
+// input vertex, UV coordinates and normal
+layout(location = 0) in vec3 vertexPosition_modelspace;
+layout(location = 1) in vec3 vertexNormal_modelspace;//delete
+layout(location = 2) in vec2 vertexUV;
+layout (location = 3) in mat4 transformationMatrix;
+layout (location = 7) in mat4 rotationMatrix;//delete
+layout (location = 11) in float scale;
+layout (location = 12) in float life;
+layout (location = 13) in float dist;
+
+out vec2 UV;
+out float life_left;
+out float d;
+//out vec3 normal;
+
+// Values that stay constant for the whole mesh.
+uniform mat4 P, V;
+uniform int trail = 0;
+uniform int explosion =0;
+
+void main() {
+    // vertex position
+    vec3 particle_center_worldspace = vec3(transformationMatrix[3][0],transformationMatrix[3][1],transformationMatrix[3][2]);
+
+    UV = vertexUV;
+    vec4 position_viewspace = V * vec4(particle_center_worldspace, 1 );
+
+    if(trail!=0 || explosion!=0){
+        d = dist;
+        life_left = life;
+        position_viewspace.xy += scale * vertexPosition_modelspace.xy;
+   }
+   else{
+    position_viewspace.xy += 0.3 * vertexPosition_modelspace.xy;
+   }
+    gl_Position = P * position_viewspace;
+}
